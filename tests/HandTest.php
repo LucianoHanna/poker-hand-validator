@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use PokerHandValidator\Card;
 use PokerHandValidator\Hand;
+use PokerHandValidator\HandRanking\Flush;
 use PokerHandValidator\HandRanking\FourOfAKind;
 use PokerHandValidator\HandRanking\FullHouse;
 use PokerHandValidator\HandRanking\HighCard;
@@ -138,6 +139,18 @@ final class HandTest extends TestCase
         $this->assertInstanceOf(StraightFlush::class, $hand->getHandRanking());
     }
 
+    public function testFlushAceTo5() : void {
+        $hand = new Hand([
+            new Card(new Suit(SuitType::Diamonds), 0),
+            new Card(new Suit(SuitType::Diamonds), 1),
+            new Card(new Suit(SuitType::Diamonds), 2),
+            new Card(new Suit(SuitType::Diamonds), 3),
+            new Card(new Suit(SuitType::Diamonds), 7),
+        ]);
+
+        $this->assertInstanceOf(Flush::class, $hand->getHandRanking());
+    }
+
     public function testStraightWithoutAce() : void {
         $hand = new Hand([
             new Card(new Suit(SuitType::Diamonds), 1),
@@ -172,5 +185,22 @@ final class HandTest extends TestCase
         ]);
 
         $this->assertInstanceOf(RoyalFlush::class, $hand->getHandRanking());
+    }
+
+    public function testCannotCreateHandWithLowerThan5Cards() : void {
+        $this->expectException(InvalidArgumentException::class);
+        $hand = new Hand([]);
+    }
+
+    public function testCannotCreateHandWithGreaterThan5Cards() : void {
+        $this->expectException(InvalidArgumentException::class);
+        $hand = new Hand([
+            new Card(new Suit(SuitType::Diamonds), 0),
+            new Card(new Suit(SuitType::Diamonds), 12),
+            new Card(new Suit(SuitType::Diamonds), 11),
+            new Card(new Suit(SuitType::Diamonds), 10),
+            new Card(new Suit(SuitType::Diamonds), 9),
+            new Card(new Suit(SuitType::Diamonds), 8),
+        ]);
     }
 }
